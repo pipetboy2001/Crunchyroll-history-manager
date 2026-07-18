@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Crunchyroll History Auto-Cleaner",
+  "version": "1.0.0",
+  "description": "Automatically extracts and bulk deletes entire series from your Crunchyroll watch history.",
+  "permissions": ["activeTab"],
+  "host_permissions": ["*://*.crunchyroll.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://www.crunchyroll.com/*history*", "*://www.crunchyroll.com/*historial*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
