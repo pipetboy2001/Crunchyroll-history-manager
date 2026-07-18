@@ -1,11 +1,23 @@
 {
   "manifest_version": 3,
   "name": "Crunchyroll History Auto-Cleaner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatically extracts and bulk deletes entire series from your Crunchyroll watch history.",
   "permissions": ["activeTab"],
   "host_permissions": ["*://*.crunchyroll.com/*"],
-  "content_scripts": [
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+ "content_scripts": [
     {
       "matches": ["*://www.crunchyroll.com/*history*", "*://www.crunchyroll.com/*historial*"],
       "js": ["content.js"],
