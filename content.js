@@ -61,20 +61,31 @@ function monitorPageStatus() {
 function buildUI() {
     const container = document.createElement('div');
     container.id = CONFIG.UI_CONTAINER_ID;
-        container.innerHTML = `
-        <h3 class="cleaner-title">${UI_TEXT.PANEL_TITLE}</h3>
-        <p class="cleaner-desc">${UI_TEXT.PANEL_DESC}</p>
-        
-        <select id="cleaner-select" class="cleaner-select" disabled>
-            <option value="">${UI_TEXT.LOADING_DB}</option>
-        </select>
 
-        <button id="cleaner-btn" class="cleaner-btn" disabled>
-            ${UI_TEXT.BTN_WAITING}
-        </button>
-        
-        <p id="cleaner-status"></p>
-    `;
+    const heading = document.createElement('h3');
+    heading.className = 'cleaner-title';
+    heading.textContent = UI_TEXT.PANEL_TITLE;
+
+    const description = document.createElement('p');
+    description.className = 'cleaner-desc';
+    description.textContent = UI_TEXT.PANEL_DESC;
+
+    const select = document.createElement('select');
+    select.id = 'cleaner-select';
+    select.className = 'cleaner-select';
+    select.disabled = true;
+    select.appendChild(createOption('', UI_TEXT.LOADING_DB));
+
+    const button = document.createElement('button');
+    button.id = 'cleaner-btn';
+    button.className = 'cleaner-btn';
+    button.disabled = true;
+    button.textContent = UI_TEXT.BTN_WAITING;
+
+    const status = document.createElement('p');
+    status.id = 'cleaner-status';
+
+    container.append(heading, description, select, button, status);
 
     document.body.appendChild(container);
     attachUIListeners();
@@ -118,18 +129,24 @@ function populateSelectMenu(uniqueSeries) {
     const btn = document.getElementById('cleaner-btn');
     if (!select || !btn) return;
 
-    let optionsHTML = `<option value="">${UI_TEXT.SELECT_DEFAULT}</option>`;
-    
+    select.replaceChildren(createOption('', UI_TEXT.SELECT_DEFAULT));
+
     Array.from(uniqueSeries).sort().forEach(series => {
-        optionsHTML += `<option value="${series}">${series}</option>`;
+        select.appendChild(createOption(series, series));
     });
 
-    select.innerHTML = optionsHTML;
     select.disabled = false;
     
     btn.disabled = false;
     btn.classList.add('ready');
     btn.innerText = UI_TEXT.BTN_READY;
+}
+
+function createOption(value, text) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = text;
+    return option;
 }
 
 // ==========================================
@@ -168,7 +185,12 @@ async function loadDatabaseSilently() {
     } catch (error) {
         console.error("[Crunchyroll Cleaner] Error loading history:", error);
         const select = document.getElementById('cleaner-select');
-        if (select) select.innerHTML = `<option value="">Error loading DB. Press F5.</option>`;
+        if (select) select.replaceChildren(createOption('', 'Error loading DB. Press F5.'));
+        const status = document.getElementById('cleaner-status');
+        if (status) {
+            status.textContent = error.message;
+            status.style.display = 'block';
+        }
     }
 }
 
@@ -212,7 +234,9 @@ async function fetchAuthToken() {
         credentials: "include" 
     });
     
-    if (!response.ok) return null;
+    if (!response.ok) {
+        throw new Error(`Authentication failed (HTTP ${response.status}). Please sign in to Crunchyroll and reload History.`);
+    }
     return await response.json();
 }
 
@@ -221,6 +245,9 @@ async function fetchHistoryPage(tokenData, pageNumber) {
     const response = await fetch(url, { 
         headers: { "Authorization": `Bearer ${tokenData.access_token}` } 
     });
+    if (!response.ok) {
+        throw new Error(`Unable to load watch history (HTTP ${response.status}). Please reload History and try again.`);
+    }
     return await response.json();
 }
 
@@ -254,13 +281,16 @@ async function bulkDeleteEpisodes(idsArray, tokenData) {
         const chunk = idsArray.slice(i, i + CONFIG.DELETE_CHUNK_SIZE).join(",");
         const url = `${CONFIG.API_BASE_URL}/${tokenData.account_id}/watch-history/${chunk}`;
         
-        await fetch(url, {
+        const response = await fetch(url, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${tokenData.access_token}`,
                 "Content-Type": "application/json"
             }
         });
+        if (!response.ok) {
+            throw new Error(`Deletion failed (HTTP ${response.status}). Some earlier batches may have been removed. Reload History before trying again.`);
+        }
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 }
