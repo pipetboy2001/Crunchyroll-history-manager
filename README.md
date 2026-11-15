@@ -27,7 +27,7 @@ This extension solves that problem. By interacting directly with Crunchyroll's i
 | Google Chrome | Fully Supported |
 | Microsoft Edge | Fully Supported |
 | Brave | Fully Supported |
-| Mozilla Firefox | History panel tested; deletion/Continue Watching check pending (see below) |
+| Mozilla Firefox | User-reported live test passed on the original version (see notes below) |
 
 ## Installation 
 
@@ -48,7 +48,7 @@ This extension solves that problem. By interacting directly with Crunchyroll's i
 
 The temporary extension is removed when Firefox restarts. After editing the code, click **Reload** beside the extension in `about:debugging`, then reload the Crunchyroll tab. See Mozilla's [temporary installation guide](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
 
-The original extension's history panel was reported working in Firefox during development. Local Manifest V3 validation and mocked API/DOM tests pass for this version. Deletion and removal from Continue Watching still require a live account test; these checks do not establish end-to-end Firefox support. If loading fails, the panel displays the HTTP error when available. A rejected deletion stops processing and does not report success; earlier successful batches cannot be undone.
+During development, a user confirmed that the original extension loaded their history, deleted a series, and removed it from Continue Watching in Firefox. Local Manifest V3 validation and mocked API/DOM tests pass for this version; the modified version has not been separately verified against a live account. If loading fails, the panel displays the HTTP error when available. A rejected deletion stops processing and does not report success; earlier successful batches cannot be undone.
 
 ### Development checks
 
