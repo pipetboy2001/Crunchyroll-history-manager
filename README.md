@@ -27,15 +27,42 @@ This extension solves that problem. By interacting directly with Crunchyroll's i
 | Google Chrome | Fully Supported |
 | Microsoft Edge | Fully Supported |
 | Brave | Fully Supported |
-| Mozilla Firefox | Needs testing (Manifest V3 differences) |
+| Mozilla Firefox | User-reported live test passed on the original version (see notes below) |
 
 ## Installation 
+
+### Chrome, Edge, and Brave
 
 1. Download the latest `.zip` release and extract it.
 2. Open your Chromium-based browser and go to the extensions manager (`chrome://extensions/`).
 3. Enable **Developer mode** (usually a toggle in the top right corner).
 4. Click on **Load unpacked** and select the folder where you extracted the files.
 5. That's it! The extension is ready to use.
+
+### Firefox (temporary development installation)
+
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on** and select this project's `manifest.json`.
+3. Sign in to Crunchyroll and open the [History page](https://www.crunchyroll.com/history) in a new tab, or reload an existing History tab.
+4. Wait for **History Cleaner** to populate the series dropdown. Loading the panel only reads history; deletion requires selecting a series and confirming **Delete Series**.
+
+The temporary extension is removed when Firefox restarts. After editing the code, click **Reload** beside the extension in `about:debugging`, then reload the Crunchyroll tab. See Mozilla's [temporary installation guide](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
+
+During development, a user confirmed that the original extension loaded their history, deleted a series, and removed it from Continue Watching in Firefox. Local Manifest V3 validation and mocked API/DOM tests pass for this version; the modified version has not been separately verified against a live account. If loading fails, the panel displays the HTTP error when available. A rejected deletion stops processing and does not report success; earlier successful batches cannot be undone.
+
+### Development checks
+
+Use Node.js 22.22.2+, 24.15.0+, or 26+ (as supported by jsdom):
+
+```sh
+npm ci
+npm test
+npx web-ext@10.8.0 lint
+```
+
+The tests use fake credentials and history, with no requests to Crunchyroll. They cover title handling, history pagination, cookie-based authentication, deletion batching, and HTTP failures. The extension itself needs no build step or npm dependencies.
+
+Mozilla's validator still warns that `browser_specific_settings.gecko.data_collection_permissions` is missing. The maintainer must choose an accurate declaration before a new Firefox Add-ons submission; this change does not claim marketplace readiness.
 
 ## How to Use
 

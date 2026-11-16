@@ -3,6 +3,11 @@
   "name": "Crunchyroll History Auto-Cleaner",
   "version": "1.0.1",
   "description": "Automatically extracts and bulk deletes entire series from your Crunchyroll watch history.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "crunchyroll-history-manager@pipetboy2001"
+    }
+  },
   "permissions": ["activeTab"],
   "host_permissions": ["*://*.crunchyroll.com/*"],
   "icons": {
